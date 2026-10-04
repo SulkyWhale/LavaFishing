@@ -1,0 +1,11 @@
+name: LavaFishing
+version: ${project.version}
+description: ${project.description}
+main: io.github.sulkywhale.lavafishing.LavaFishing
+api-version: '1.21'
+author: Sulky_Whale
+softdepend: [ mcMMO, Jobs ]
+permissions:
+    lavafishing.fishing:
+        description: Allows player to fish in lava.
+        default: op

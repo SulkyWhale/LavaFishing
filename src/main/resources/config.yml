@@ -1,0 +1,135 @@
+lavafishing:
+    # Minimum amount of time you have to wait while lava fishing before making a catch, in ticks.
+    min_wait_time: 100
+    # Maximum amount of time you have to wait while lava fishing before making a catch, in ticks.
+    max_wait_time: 600
+    # Minimum amount of time you have to reel in a catch while lava fishing before it gets away, in ticks.
+    min_looting_period: 20
+    # Maximum amount of time you have to reel in a catch while lava fishing before it gets away, in ticks.
+    max_looting_period: 40
+    # Not lava fishing in the nether comes with a penalty.
+    not_nether_penalty:
+        # Do you want to use this feature?
+        enabled: true
+        # When lava fishing outside the nether, the chance per tick that the wait time will not be decremented.
+        # 50% is 0.5.
+        chance: 0.5
+
+    # The loot table for what you can catch from lava fishing.
+    # Each new entry represents a new item in the loot table.
+    # The material is a Bukkit material name, which can be found here: https://jd.papermc.io/paper/26.3/org/bukkit/Material.html
+    # The amount is the number of items that will be fished up at once if that specific loot entry is chosen.
+    # The weight is the chance that the specific loot entry will be chosen.
+    # Higher weight values mean that it is more common while lower weight values means that is more rare.
+    # If you do not plan to use the mcMMO integration, you may leave out the mcMMO_xp field.
+    # All other fields are required.
+    loot_table:
+        -   material: COOKED_COD
+            amount: 1
+            weight: 60.0
+            mcMMO_xp: 150
+        -   material: COOKED_SALMON
+            amount: 1
+            weight: 25.0
+            mcMMO_xp: 650
+        -   material: STRING
+            amount: 1
+            weight: 1.5
+            mcMMO_xp: 100
+        -   material: GRAVEL
+            amount: 1
+            weight: 1.5
+            mcMMO_xp: 100
+        -   material: BONE
+            amount: 1
+            weight: 1.5
+            mcMMO_xp: 100
+        -   material: SOUL_SAND
+            amount: 1
+            weight: 1.5
+            mcMMO_xp: 100
+        -   material: LEATHER
+            amount: 1
+            weight: 1.5
+            mcMMO_xp: 100
+        -   material: NETHER_WART
+            amount: 1
+            weight: 1.2
+            mcMMO_xp: 100
+        -   material: LAVA_BUCKET
+            amount: 1
+            weight: 1.0
+            mcMMO_xp: 200
+        -   material: DRIED_GHAST
+            amount: 1
+            weight: 1.0
+            mcMMO_xp: 200
+        -   material: POTION
+            amount: 1
+            weight: 0.8
+            mcMMO_xp: 200
+        -   material: ENCHANTED_BOOK
+            amount: 1
+            weight: 0.7
+            mcMMO_xp: 200
+        -   material: GOLD_INGOT
+            amount: 2
+            weight: 0.7
+            mcMMO_xp: 200
+        -   material: BLAZE_ROD
+            amount: 1
+            weight: 0.7
+            mcMMO_xp: 200
+        -   material: CRYING_OBSIDIAN
+            amount: 1
+            weight: 0.6
+            mcMMO_xp: 200
+        -   material: GHAST_TEAR
+            amount: 1
+            weight: 0.5
+            mcMMO_xp: 200
+        -   material: NETHERITE_SCRAP
+            amount: 1
+            weight: 0.1
+            mcMMO_xp: 400
+        -   material: WITHER_SKELETON_SKULL
+            amount: 1
+            weight: 0.1
+            mcMMO_xp: 400
+
+    # To use potions in the loot table, you need to add the material of `POTION`, `SPLASH_POTION` or `LINGERING_POTION` to the loot table along with all the other fields.
+    # The type of potion given as loot will be chosen randomly from those defined below when a potion is chosen from the loot table.
+    # The type is a potion identifier, which can be found here for all the potions: https://minecraft.wiki/w/Potion#Item_data
+    # The weight is the chance that the specific potion will be chosen.
+    # Higher weight values mean that it is more common while lower weight values means that is more rare.
+    potions:
+        -   type: fire_resistance
+            weight: 4.0
+        -   type: strong_regeneration
+            weight: 1.0
+
+    # To use enchanted books or enchanted items/gear in the loot table, you need to add the material of `ENCHANTED_BOOK` or any item that can be enchanted to the loot table along with all the other fields.
+    # The type is an enchantment identifier, which can be found here for all the enchantments: https://minecraft.wiki/w/Enchantment#List_of_enchantments
+    # The level is the level of the enchantment.
+    # The weight is the chance that the specific enchantment will be chosen.
+    # Higher weight values mean that it is more common while lower weight values means that is more rare.
+    enchantments:
+        -   type: fire_protection
+            level: 2
+            weight: 3.0
+        -   type: unbreaking
+            level: 3
+            weight: 5.0
+
+    # Allows enchantment combinations that would otherwise not be allowed in vanilla Minecraft.
+    allow_conflicting_enchants: false
+    # The chance, that when an enchantable item is caught, it will be enchanted.
+    # 10% is 0.1.
+    enchant_chance: 0.1
+
+    # These settings only apply if you are using the mcMMO integration.
+    # Lava fishing is treated as a subskill of fishing.
+    mcMMO:
+        # The mcMMO fishing level which is required to unlock lava fishing.
+        # Set this value to 0 to remove the requirement.
+        unlock_level: 1000
