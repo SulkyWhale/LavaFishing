@@ -1,5 +1,6 @@
 package io.github.sulkywhale.lavafishing.config;
 
+import io.github.sulkywhale.lavafishing.LavaFishing;
 import io.github.sulkywhale.lavafishing.objects.EnchantmentEntry;
 import io.github.sulkywhale.lavafishing.objects.LootEntry;
 import io.github.sulkywhale.lavafishing.objects.PotionEntry;
@@ -13,6 +14,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.potion.PotionType;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Config {
 
@@ -48,7 +50,12 @@ public class Config {
 
     public static List<LootEntry> getLootTable() {
         return config.getMapList("lavafishing.loot_table").stream().map(entry -> {
-            Material material = Material.matchMaterial((String) entry.get("material"));
+            String materialName = (String) entry.get("material");
+            Material material = Material.matchMaterial(materialName);
+            if (material == null) {
+                LavaFishing.getPlugin().getLogger().severe(String.format("Could not find material %s. Please ensure you have a valid material name in your config.yml", materialName));
+                return null;
+            }
             int amount = (int) entry.get("amount");
             double weight = (double) entry.get("weight");
             Object mcMMO_Xp = entry.get("mcMMO_xp");
@@ -56,7 +63,7 @@ public class Config {
                 mcMMO_Xp = 0;
             }
             return new LootEntry(material, amount, weight, (int) mcMMO_Xp);
-        }).toList();
+        }).filter(Objects::nonNull).toList();
     }
 
     public static List<PotionEntry> getPotions() {
