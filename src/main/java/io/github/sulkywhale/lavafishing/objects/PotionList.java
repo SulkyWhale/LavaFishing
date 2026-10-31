@@ -2,6 +2,7 @@ package io.github.sulkywhale.lavafishing.objects;
 
 import io.github.sulkywhale.lavafishing.utilities.RandomUtil;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -11,7 +12,7 @@ public final class PotionList {
     private final double totalWeight;
 
     public PotionList(List<PotionEntry> potions) {
-        this.potions = potions;
+        this.potions = potions.stream().sorted(Comparator.comparingDouble(PotionEntry::weight).reversed()).toList();
         this.totalWeight = RandomUtil.getTotalWeight(potions, PotionEntry::weight);
     }
 

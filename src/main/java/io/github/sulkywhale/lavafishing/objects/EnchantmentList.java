@@ -21,7 +21,7 @@ public final class EnchantmentList {
     private final boolean allowConflictingEnchants = Config.allowConflictingEnchants();
 
     public EnchantmentList(List<EnchantmentEntry> lootEntries) {
-        this.enchantments = lootEntries.stream().sorted(Comparator.comparingDouble(EnchantmentEntry::weight)).toList();
+        this.enchantments = lootEntries.stream().sorted(Comparator.comparingDouble(EnchantmentEntry::weight).reversed()).toList();
     }
 
     public List<EnchantmentEntry> getRandomEnchantments(ItemStack itemStack, ThreadLocalRandom random) {

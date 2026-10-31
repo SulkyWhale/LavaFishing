@@ -12,7 +12,7 @@ public final class LootTable {
     private final double totalWeight;
 
     public LootTable(List<LootEntry> lootEntries) {
-        this.lootTable = lootEntries.stream().sorted(Comparator.comparingDouble(LootEntry::weight)).toList();
+        this.lootTable = lootEntries.stream().sorted(Comparator.comparingDouble(LootEntry::weight).reversed()).toList();
         this.totalWeight = RandomUtil.getTotalWeight(lootTable, LootEntry::weight);
     }
 
