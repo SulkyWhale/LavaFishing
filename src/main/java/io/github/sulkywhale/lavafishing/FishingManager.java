@@ -33,6 +33,8 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
@@ -154,7 +156,12 @@ public class FishingManager {
                     ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level)))
             );
         }
-        if (material.asItemType().getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
+        ItemType itemType = material.asItemType();
+        if (itemStack.getItemMeta() instanceof Damageable damageableMeta) {
+            damageableMeta.setDamage(itemType.getMaxDurability() * random.nextInt(91) / 100);
+            itemStack.setItemMeta(damageableMeta);
+        }
+        if (itemType.getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
             List<EnchantmentEntry> enchantmentEntries = enchantmentList.getRandomEnchantments(itemStack, random);
             if (!enchantmentEntries.isEmpty()) {
                 itemStack.setData(
