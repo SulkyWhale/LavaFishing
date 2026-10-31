@@ -5,6 +5,7 @@ main: io.github.sulkywhale.lavafishing.LavaFishing
 api-version: '1.21'
 author: Sulky_Whale
 softdepend: [ mcMMO, Jobs ]
+folia-supported: true
 permissions:
     lavafishing.fishing:
         description: Allows player to fish in lava.

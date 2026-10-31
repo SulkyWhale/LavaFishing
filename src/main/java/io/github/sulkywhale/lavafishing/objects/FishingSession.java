@@ -53,4 +53,12 @@ public final class FishingSession {
         return inNether;
     }
 
+    public boolean isLootPeriod(int currentTick) {
+        return currentTick >= getLootTime() && currentTick < getLootTime() + getLootPeriodLength();
+    }
+
+    public boolean isPastLootPeriod(int currentTick) {
+        return currentTick > getLootTime() + getLootPeriodLength();
+    }
+
 }
