@@ -156,12 +156,11 @@ public class FishingManager {
                     ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
             );
         }
-        ItemType itemType = material.asItemType();
-        if (itemStack.getItemMeta() instanceof Damageable damageableMeta) {
-            damageableMeta.setDamage(itemType.getMaxDurability() * random.nextInt(91) / 100);
+        if (itemStack.getItemMeta() instanceof Damageable damageableMeta && material.getMaxDurability() > 0) {
+            damageableMeta.setDamage(material.getMaxDurability() * random.nextInt(91) / 100);
             itemStack.setItemMeta(damageableMeta);
         }
-        if (itemType.getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
+        if (material.getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
             List<EnchantmentEntry> enchantmentEntries = enchantmentList.getRandomEnchantments(itemStack, random);
             if (!enchantmentEntries.isEmpty()) {
                 itemStack.setData(
