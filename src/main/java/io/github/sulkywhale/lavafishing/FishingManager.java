@@ -153,7 +153,7 @@ public class FishingManager {
             List<EnchantmentEntry> enchantmentEntries = enchantmentList.getRandomEnchantments(itemStack, random);
             itemStack.setData(
                     DataComponentTypes.STORED_ENCHANTMENTS,
-                    ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level)))
+                    ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
             );
         }
         ItemType itemType = material.asItemType();
@@ -166,7 +166,7 @@ public class FishingManager {
             if (!enchantmentEntries.isEmpty()) {
                 itemStack.setData(
                         DataComponentTypes.ENCHANTMENTS,
-                        ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level)))
+                        ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
                 );
                 itemStack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
             }
