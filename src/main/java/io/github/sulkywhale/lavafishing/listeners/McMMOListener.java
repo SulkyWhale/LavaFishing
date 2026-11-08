@@ -21,7 +21,7 @@ public class McMMOListener implements Listener {
             return;
         }
         Player player = event.getPlayer();
-        player.sendRichMessage("<gold>[ mcMMO <yellow>@</yellow><dark_aqua>Lava Fishing</dark_aqua> Rank <dark_aqua>1</dark_aqua> Unlocked! ]</gold>");
+        player.sendRichMessage("<click:run_command:'/fishing'><hover:show_text:'<gold>Lava Fishing</gold><newline><b><yellow>Rank:</yellow></b> 1<newline><newline><dark_purple>Description:</dark_purple><newline>Allows you to fish in lava'><gold>[ mcMMO <yellow>@</yellow><dark_aqua>Lava Fishing</dark_aqua> Rank <dark_aqua>1</dark_aqua> Unlocked! ]</gold></click>");
         SoundManager.sendCategorizedSound(player,
                 player.getLocation(),
                 SoundType.SKILL_UNLOCKED, SoundCategory.MASTER);
@@ -33,7 +33,7 @@ public class McMMOListener implements Listener {
         if (event.getMessage().equalsIgnoreCase("/fishing") && McMMOHook.hasUnlockedLavaFishing(player)) {
             Bukkit.getServer().getScheduler().runTaskLater(
                     LavaFishing.getPlugin(),
-                    () -> player.sendRichMessage("<dark_aqua>You have access to <yellow>@</yellow><gold>Lava Fishing</gold></dark_aqua>"),
+                    () -> player.sendRichMessage("<dark_aqua>You have access to <yellow>@</yellow><gold><hover:show_text:'<gold>Lava Fishing</gold><newline><b><yellow>Rank:</yellow></b> 1<newline><newline><dark_purple>Description:</dark_purple><newline>Allows you to fish in lava'>Lava Fishing</hover></gold></dark_aqua>"),
                     1L
             );
         }
