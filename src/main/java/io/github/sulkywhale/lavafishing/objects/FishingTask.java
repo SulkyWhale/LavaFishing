@@ -31,6 +31,10 @@ public class FishingTask implements Consumer<ScheduledTask> {
 
     @Override
     public void accept(ScheduledTask task) {
+        if (session.isInvalid()) {
+            FishingManager.removeFishingPlayer(player);
+            task.cancel();
+        }
         FishHook fishHook = session.getFishHook();
         if (!fishHook.isInLava()) {
             return;
@@ -80,7 +84,7 @@ public class FishingTask implements Consumer<ScheduledTask> {
     private static void keepBobberUp(FishHook hook) {
         Location hookLocation = hook.getLocation();
         float height = hookLocation.getWorld().getFluidData(hookLocation).computeHeight(hookLocation);
-        hook.teleport(hookLocation.add(0, height, 0));
+        hook.teleportAsync(hookLocation.add(0, height, 0));
     }
 
 }
