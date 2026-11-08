@@ -1,9 +1,11 @@
 package io.github.sulkywhale.lavafishing;
 
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.datatypes.interactions.NotificationType;
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.util.Permissions;
+import com.gmail.nossr50.util.player.NotificationManager;
 import io.github.sulkywhale.lavafishing.config.Config;
 import io.github.sulkywhale.lavafishing.hooks.JobsHook;
 import io.github.sulkywhale.lavafishing.hooks.McMMOHook;
@@ -30,7 +32,6 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemType;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
@@ -156,6 +157,7 @@ public class FishingManager {
                     DataComponentTypes.STORED_ENCHANTMENTS,
                     ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
             );
+            NotificationManager.sendPlayerInformation(player, NotificationType.SUBSKILL_MESSAGE, "Fishing.Ability.TH.MagicFound");
         }
         if (itemStack.getItemMeta() instanceof Damageable damageableMeta && material.getMaxDurability() > 0) {
             damageableMeta.setDamage(material.getMaxDurability() * random.nextInt(91) / 100);
@@ -169,6 +171,7 @@ public class FishingManager {
                         ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
                 );
                 itemStack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+                NotificationManager.sendPlayerInformation(player, NotificationType.SUBSKILL_MESSAGE, "Fishing.Ability.TH.MagicFound");
             }
         }
         Item hookedItem = hookLocation.getWorld().spawn(hookLocation, Item.class, item -> {
