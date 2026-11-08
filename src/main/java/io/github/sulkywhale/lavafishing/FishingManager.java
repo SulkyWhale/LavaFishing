@@ -1,6 +1,5 @@
 package io.github.sulkywhale.lavafishing;
 
-import com.destroystokyo.paper.ParticleBuilder;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
 import com.gmail.nossr50.datatypes.skills.PrimarySkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
@@ -11,20 +10,18 @@ import io.github.sulkywhale.lavafishing.hooks.McMMOHook;
 import io.github.sulkywhale.lavafishing.objects.EnchantmentEntry;
 import io.github.sulkywhale.lavafishing.objects.EnchantmentList;
 import io.github.sulkywhale.lavafishing.objects.FishingSession;
+import io.github.sulkywhale.lavafishing.objects.FishingTask;
 import io.github.sulkywhale.lavafishing.objects.LootEntry;
 import io.github.sulkywhale.lavafishing.objects.LootTable;
 import io.github.sulkywhale.lavafishing.objects.PotionList;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemEnchantments;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
@@ -38,15 +35,15 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class FishingManager {
 
-    private static final Map<Player, FishingSession> fishingPlayers = new HashMap<>();
+    private static final Map<Player, FishingSession> fishingSessions = new ConcurrentHashMap<>();
     private static final LootTable lootTable = new LootTable(Config.getLootTable());
     private static final PotionList potionList = new PotionList(Config.getPotions());
     private static final EnchantmentList enchantmentList = new EnchantmentList(Config.getEnchantments());
@@ -55,20 +52,21 @@ public class FishingManager {
     private static final int maxLootPeriod = Config.getMaxLootPeriod();
     private static final int minWaitTime = Config.getMinWaitTime();
     private static final int maxWaitTime = Config.getMaxWaitTime();
-    private static final boolean usingNotNetherPenalty = Config.usingNotNetherPenalty();
-    private static final double notNetherPenaltyChance = Config.notNetherPenaltyChance();
-    private static final ParticleBuilder particleBuilder = Particle.DUST.builder()
-            .data(new Particle.DustOptions(Color.fromRGB(0x444444), 3))
-            .offset(0, 0.3, 0);
 
     public static void addFishingPlayer(Player player, FishHook fishHook) {
         int startTime = Bukkit.getCurrentTick();
         boolean isNether = player.getWorld().getEnvironment() == World.Environment.NETHER;
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        fishingPlayers.put(player, new FishingSession(startTime, generateWaitTime(player, player.getInventory().getItemInMainHand(), random), generateLureTime(random), generateLootPeriodLength(random), fishHook, isNether));
+        FishingSession fishingSession = new FishingSession(startTime, generateWaitTime(player, player.getInventory().getItemInMainHand(), random), generateLureTime(random), generateLootPeriodLength(random), fishHook, isNether);
+        ScheduledTask scheduledTask = player.getScheduler().runAtFixedRate(LavaFishing.getPlugin(), new FishingTask(player, fishingSession), null, 1L, 1L);
+        if (scheduledTask == null) {
+            LavaFishing.getPlugin().getLogger().warning("Failed to schedule task.");
+            return;
+        }
+        fishingSessions.put(player, fishingSession);
     }
 
-    private static int generateWaitTime(Player player, ItemStack fishingRod, ThreadLocalRandom random) {
+    public static int generateWaitTime(Player player, ItemStack fishingRod, ThreadLocalRandom random) {
         int lureLevel = 0;
         if (fishingRod.containsEnchantment(Enchantment.LURE)) {
             lureLevel = fishingRod.getEnchantmentLevel(Enchantment.LURE);
@@ -93,7 +91,7 @@ public class FishingManager {
         return random.nextInt(reducedMinWaitTime, reducedMaxWaitTime);
     }
 
-    public static int generateLureTime(ThreadLocalRandom random) {
+    private static int generateLureTime(ThreadLocalRandom random) {
         return random.nextInt(20, 81);
     }
 
@@ -101,12 +99,16 @@ public class FishingManager {
         return random.nextInt(minLootPeriod, maxLootPeriod + 1);
     }
 
+    public static void removeFishingPlayer(Player player) {
+        fishingSessions.remove(player);
+    }
+
     public static void fish(Player player, boolean giveLoot, FishHook hook) {
-        FishingSession session = fishingPlayers.get(player);
+        FishingSession session = fishingSessions.get(player);
         if (session == null) {
             return;
         }
-        fishingPlayers.remove(player);
+        session.setInvalid();
         if (!giveLoot) {
             return;
         }
@@ -120,7 +122,7 @@ public class FishingManager {
                 return;
             }
         }
-        if (isLootPeriod(session.getLootPeriodLength(), session.getLootTime(), Bukkit.getCurrentTick()) && hook.getHookedEntity() == null) {
+        if (session.isLootPeriod(Bukkit.getCurrentTick()) && hook.getHookedEntity() == null) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             giveLoot(player, session.getFishHook(), random);
             giveExperience(player, random);
@@ -190,73 +192,6 @@ public class FishingManager {
                 McMMOHook.getVanillaXpBoost(player, baseXp) :
                 baseXp;
         player.getWorld().spawn(player.getLocation(), ExperienceOrb.class, experienceOrb -> experienceOrb.setExperience(experience));
-    }
-
-    public static void runScheduler(LavaFishing plugin) {
-        Bukkit.getScheduler().runTaskTimer(plugin, _ -> {
-            for (Map.Entry<Player, FishingSession> fishingPlayer : fishingPlayers.entrySet()) {
-                FishingSession session = fishingPlayer.getValue();
-                FishHook fishHook = session.getFishHook();
-                if (!fishHook.isInLava()) {
-                    continue;
-                }
-                Player player = fishingPlayer.getKey();
-                ThreadLocalRandom random = ThreadLocalRandom.current();
-                if (session.getWaitTime() < 0) {
-                    // If lure made wait time less than 0, generate new wait time
-                    session.setWaitTime(generateWaitTime(player, player.getInventory().getItemInMainHand(), random));
-                    keepBobberUp(session.getFishHook());
-                    continue;
-                }
-                int lootTime = session.getLootTime();
-                int currentTick = Bukkit.getCurrentTick();
-                if (isPastLootPeriod(session.getLootPeriodLength(), lootTime, currentTick)) {
-                    fishingPlayers.remove(player);
-                    addFishingPlayer(player, fishHook);
-                    continue;
-                }
-                if (currentTick >= lootTime && !session.hasFinishedWaitTime()) {
-                    if (fishHook.getHookedEntity() != null) {
-                        fishingPlayers.remove(player);
-                        continue;
-                    }
-                    float pitch = random.nextFloat(0.6f, 1.4f);
-                    player.playSound(Sound.sound(Key.key("block.pointed_dripstone.drip_lava"), Sound.Source.PLAYER, 1.0f, pitch), fishHook.getX(), fishHook.getY(), fishHook.getZ());
-                    spawnParticle(fishHook);
-                    session.setFinishedWaitTime(true);
-                    continue;
-                }
-                if (usingNotNetherPenalty && !session.isInNether() && random.nextDouble() < notNetherPenaltyChance) {
-                    // Add tick to emulate not decreasing time (not a perfect solution because some ticks are skipped)
-                    session.setWaitTime(session.getWaitTime() + 1);
-                }
-                if (isLootPeriod(session.getLootPeriodLength(), lootTime, currentTick)) {
-                    // Allow bobber to sink
-                    continue;
-                }
-                keepBobberUp(fishHook);
-            }
-        }, 0L, 1L);
-    }
-
-    private static void spawnParticle(FishHook hook) {
-        Location hookLocation = hook.getLocation();
-        float height = hookLocation.getWorld().getFluidData(hookLocation).computeHeight(hookLocation);
-        particleBuilder.location(hookLocation.add(0, height, 0)).receivers(24).spawn();
-    }
-
-    private static boolean isLootPeriod(int lootPeriodLength, int lootTime, int currentTick) {
-        return currentTick >= lootTime && currentTick < lootTime + lootPeriodLength;
-    }
-
-    private static boolean isPastLootPeriod(int lootPeriodLength, int lootTime, int currentTick) {
-        return currentTick > lootTime + lootPeriodLength;
-    }
-
-    private static void keepBobberUp(FishHook hook) {
-        Location hookLocation = hook.getLocation();
-        float height = hookLocation.getWorld().getFluidData(hookLocation).computeHeight(hookLocation);
-        hook.teleport(hookLocation.add(0, height, 0));
     }
 
 }

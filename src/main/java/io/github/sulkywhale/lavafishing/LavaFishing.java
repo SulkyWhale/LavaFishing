@@ -20,7 +20,6 @@ public class LavaFishing extends JavaPlugin {
         saveDefaultConfig();
         Config.init(getConfig());
         getServer().getPluginManager().registerEvents(new PlayerFishListener(), this);
-        FishingManager.runScheduler(this);
         if (getServer().getPluginManager().getPlugin("mcMMO") != null) {
             McMMOHook.init();
             getServer().getPluginManager().registerEvents(new McMMOListener(), this);

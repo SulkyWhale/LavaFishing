@@ -4,13 +4,14 @@ import org.bukkit.entity.FishHook;
 
 public final class FishingSession {
 
-    private int startTime;
+    private final int startTime;
     private int waitTime;
     private final int lureTime;
     private final int lootPeriodLength;
     private final FishHook fishHook;
     private final boolean inNether;
     private boolean finishedWaitTime = false;
+    private boolean valid = true;
 
     public FishingSession(int startTime, int waitTime, int lureTime, int lootPeriodLength, FishHook fishHook, boolean inNether) {
         this.startTime = startTime;
@@ -51,6 +52,22 @@ public final class FishingSession {
 
     public boolean isInNether() {
         return inNether;
+    }
+
+    public boolean isLootPeriod(int currentTick) {
+        return currentTick >= getLootTime() && currentTick < getLootTime() + getLootPeriodLength();
+    }
+
+    public boolean isPastLootPeriod(int currentTick) {
+        return currentTick > getLootTime() + getLootPeriodLength();
+    }
+
+    public boolean isInvalid() {
+        return !valid;
+    }
+
+    public void setInvalid() {
+        this.valid = false;
     }
 
 }
