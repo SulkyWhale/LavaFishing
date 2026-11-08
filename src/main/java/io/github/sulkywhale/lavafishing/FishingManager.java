@@ -30,6 +30,8 @@ import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
@@ -153,15 +155,19 @@ public class FishingManager {
             List<EnchantmentEntry> enchantmentEntries = enchantmentList.getRandomEnchantments(itemStack, random);
             itemStack.setData(
                     DataComponentTypes.STORED_ENCHANTMENTS,
-                    ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level)))
+                    ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
             );
         }
-        if (material.asItemType().getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
+        if (itemStack.getItemMeta() instanceof Damageable damageableMeta && material.getMaxDurability() > 0) {
+            damageableMeta.setDamage(material.getMaxDurability() * random.nextInt(91) / 100);
+            itemStack.setItemMeta(damageableMeta);
+        }
+        if (material.getDefaultDataTypes().contains(DataComponentTypes.ENCHANTABLE) && random.nextDouble() < enchantChance) {
             List<EnchantmentEntry> enchantmentEntries = enchantmentList.getRandomEnchantments(itemStack, random);
             if (!enchantmentEntries.isEmpty()) {
                 itemStack.setData(
                         DataComponentTypes.ENCHANTMENTS,
-                        ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level)))
+                        ItemEnchantments.itemEnchantments().addAll(enchantmentEntries.stream().collect(Collectors.toMap(EnchantmentEntry::type, EnchantmentEntry::level, Math::max)))
                 );
                 itemStack.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
             }

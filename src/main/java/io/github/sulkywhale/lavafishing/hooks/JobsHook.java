@@ -2,8 +2,6 @@ package io.github.sulkywhale.lavafishing.hooks;
 
 import com.gamingmesh.jobs.Jobs;
 import com.gamingmesh.jobs.PlayerManager;
-import com.gamingmesh.jobs.actions.ItemActionInfo;
-import com.gamingmesh.jobs.container.ActionType;
 import com.gamingmesh.jobs.container.JobsPlayer;
 import com.gamingmesh.jobs.listeners.JobsPaymentListener;
 import org.bukkit.entity.Player;
@@ -39,7 +37,7 @@ public class JobsHook {
         if (!JobsPaymentListener.payForItemDurabilityLoss(player))
             return;
 
-        Jobs.action(jobsPlayer, new ItemActionInfo(loot, ActionType.FISH));
+        JobsImplementation.processAction(jobsPlayer, loot);
     }
 
 }

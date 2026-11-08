@@ -16,7 +16,7 @@ public class PlayerFishListener implements Listener {
         if (!player.hasPermission("lavafishing.fishing"))
             return;
 
-        if (!McMMOHook.isEnabled() || !McMMOHook.hasUnlockedLavaFishing(player))
+        if (McMMOHook.isEnabled() && !McMMOHook.hasUnlockedLavaFishing(player))
             return;
 
         FishHook hook = event.getHook();

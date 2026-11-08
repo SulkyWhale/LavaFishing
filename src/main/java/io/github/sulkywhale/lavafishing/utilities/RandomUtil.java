@@ -7,14 +7,14 @@ import java.util.function.ToDoubleFunction;
 public class RandomUtil {
 
     public static <T> T getRandomItem(ThreadLocalRandom random, List<T> items, ToDoubleFunction<T> weightGetter, double modifier, double totalWeight) {
-        double roll = random.nextDouble(totalWeight) - modifier;
+        double roll = random.nextDouble(totalWeight);
         for (T item : items) {
-            if (roll <= weightGetter.applyAsDouble(item)) {
+            roll -= weightGetter.applyAsDouble(item);
+            if (roll < 0) {
                 return item;
             }
-            roll -= weightGetter.applyAsDouble(item);
         }
-        return null;
+        return items.isEmpty() ? null : items.getLast();
     }
 
     public static <T> T getRandomItem(ThreadLocalRandom random, List<T> items, ToDoubleFunction<T> weightGetter, double totalWeight) {

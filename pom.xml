@@ -6,7 +6,7 @@
 
     <groupId>io.github.sulkywhale</groupId>
     <artifactId>LavaFishing</artifactId>
-    <version>0.2.0</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>LavaFishing</name>
