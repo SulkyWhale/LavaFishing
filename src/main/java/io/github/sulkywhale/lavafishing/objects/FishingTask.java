@@ -39,6 +39,9 @@ public class FishingTask implements Consumer<ScheduledTask> {
         if (!fishHook.isInLava()) {
             return;
         }
+        if (session.getStartTime() == -1) {
+            session.setStartTime(Bukkit.getCurrentTick());
+        }
         ThreadLocalRandom random = ThreadLocalRandom.current();
         if (session.getWaitTime() < 0) {
             // If lure made wait time less than 0, generate new wait time

@@ -4,7 +4,7 @@ import org.bukkit.entity.FishHook;
 
 public final class FishingSession {
 
-    private final int startTime;
+    private int startTime = -1;
     private int waitTime;
     private final int lureTime;
     private final int lootPeriodLength;
@@ -13,13 +13,20 @@ public final class FishingSession {
     private boolean finishedWaitTime = false;
     private boolean valid = true;
 
-    public FishingSession(int startTime, int waitTime, int lureTime, int lootPeriodLength, FishHook fishHook, boolean inNether) {
-        this.startTime = startTime;
+    public FishingSession(int waitTime, int lureTime, int lootPeriodLength, FishHook fishHook, boolean inNether) {
         this.waitTime = waitTime;
         this.lureTime = lureTime;
         this.lootPeriodLength = lootPeriodLength;
         this.fishHook = fishHook;
         this.inNether = inNether;
+    }
+
+    public int getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(int startTime) {
+        this.startTime = startTime;
     }
 
     public int getLootTime() {

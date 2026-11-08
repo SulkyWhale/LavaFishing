@@ -54,10 +54,9 @@ public class FishingManager {
     private static final int maxWaitTime = Config.getMaxWaitTime();
 
     public static void addFishingPlayer(Player player, FishHook fishHook) {
-        int startTime = Bukkit.getCurrentTick();
         boolean isNether = player.getWorld().getEnvironment() == World.Environment.NETHER;
         ThreadLocalRandom random = ThreadLocalRandom.current();
-        FishingSession fishingSession = new FishingSession(startTime, generateWaitTime(player, player.getInventory().getItemInMainHand(), random), generateLureTime(random), generateLootPeriodLength(random), fishHook, isNether);
+        FishingSession fishingSession = new FishingSession(generateWaitTime(player, player.getInventory().getItemInMainHand(), random), generateLureTime(random), generateLootPeriodLength(random), fishHook, isNether);
         ScheduledTask scheduledTask = player.getScheduler().runAtFixedRate(LavaFishing.getPlugin(), new FishingTask(player, fishingSession), null, 1L, 1L);
         if (scheduledTask == null) {
             LavaFishing.getPlugin().getLogger().warning("Failed to schedule task.");
